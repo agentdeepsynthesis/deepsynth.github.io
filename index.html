@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEEPSYNTH — A Benchmark for Deep Information Synthesis | ICLR 2026</title>
+  <meta name="description" content="DEEPSYNTH: A novel benchmark of 120 challenging tasks across 67 countries evaluating LLM agents on realistic, multi-source information synthesis." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --clr-bg: #ffffff;
+      --clr-surface: #f7f8fa;
+      --clr-surface-2: #eef0f4;
+      --clr-border: #dde0e7;
+      --clr-border-light: #e8eaef;
+      --clr-text: #1a1d26;
+      --clr-text-secondary: #4a5068;
+      --clr-text-dim: #6b7280;
+      --clr-accent: #1a56db;
+      --clr-accent-light: #e8effc;
+      --clr-accent-dark: #143da0;
+      --clr-red: #c0392b;
+      --clr-green: #1e7a46;
+      --clr-orange: #c27119;
+      --font-serif: 'Crimson Pro', 'Georgia', serif;
+      --font-body: 'Source Sans 3', 'Helvetica Neue', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+      --max-w: 860px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--clr-bg); color: var(--clr-text); line-height: 1.75; font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--clr-border-light); }
+    .nav-inner { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+    .nav-brand { font-family: var(--font-mono); font-weight: 500; font-size: 0.88rem; color: var(--clr-accent); text-decoration: none; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+    .nav-links a { color: var(--clr-text-secondary); text-decoration: none; font-size: 0.82rem; font-weight: 500; padding: 5px 10px; border-radius: 6px; transition: all 0.2s; }
+    .nav-links a:hover { color: var(--clr-accent); background: var(--clr-accent-light); }
+
+    .hero { max-width: var(--max-w); margin: 0 auto; padding: 72px 24px 48px; text-align: center; }
+    .hero-venue { display: inline-block; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.6px; color: var(--clr-accent); background: var(--clr-accent-light); padding: 4px 14px; border-radius: 4px; margin-bottom: 24px; text-transform: uppercase; }
+    .hero h1 { font-family: var(--font-serif); font-size: 2.8rem; font-weight: 700; line-height: 1.15; margin-bottom: 6px; background: linear-gradient(135deg, #6c9cff, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subtitle { font-family: var(--font-serif); font-size: 1.35rem; font-weight: 400; color: var(--clr-text-secondary); margin-bottom: 28px; }
+    .hero-authors { font-size: 0.93rem; color: var(--clr-text-secondary); line-height: 1.8; max-width: 720px; margin: 0 auto 8px; }
+    .hero-authors strong { color: var(--clr-text); font-weight: 600; }
+    .hero-affiliations { font-size: 0.82rem; color: var(--clr-text-dim); line-height: 1.8; max-width: 720px; margin: 0 auto 32px; }
+    .hero-affiliations sup { color: var(--clr-accent); font-weight: 600; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; text-decoration: none; transition: all 0.2s; border: 1.5px solid transparent; cursor: pointer; font-family: var(--font-body); }
+    .btn i { font-size: 0.85em; }
+    .btn-primary { background: var(--clr-accent); color: #fff; }
+    .btn-primary:hover { background: var(--clr-accent-dark); }
+    .btn-outline { background: #fff; color: var(--clr-text-secondary); border-color: var(--clr-border); }
+    .btn-outline:hover { border-color: var(--clr-accent); color: var(--clr-accent); }
+
+    .content { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    section { padding: 48px 0; }
+    .section-divider { border: none; border-top: 1px solid var(--clr-border-light); margin: 0; }
+
+    h2 { font-family: var(--font-serif); font-size: 1.55rem; font-weight: 700; color: var(--clr-text); margin-bottom: 16px; }
+    h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: var(--clr-text); margin-bottom: 10px; margin-top: 28px; }
+    .prose { color: var(--clr-text-secondary); font-size: 1rem; line-height: 1.8; }
+    .prose p + p { margin-top: 14px; }
+    .prose strong { color: var(--clr-text); font-weight: 600; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--clr-border); border: 1px solid var(--clr-border); border-radius: 8px; overflow: hidden; margin: 32px 0; }
+    .stat-cell { background: var(--clr-surface); padding: 20px 12px; text-align: center; }
+    .stat-num { font-family: var(--font-serif); font-size: 1.8rem; font-weight: 700; color: var(--clr-text); }
+    .stat-label { font-size: 0.76rem; color: var(--clr-text-dim); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .figure { margin: 36px 0; border: 1px solid var(--clr-border); border-radius: 8px; overflow: hidden; background: #fff; }
+    .figure-body { padding: 0; }
+    .figure-body img { width: 100%; display: block; }
+    .figure-caption { padding: 14px 20px; font-size: 0.86rem; color: var(--clr-text-dim); border-top: 1px solid var(--clr-border-light); background: var(--clr-surface); line-height: 1.6; }
+    .figure-caption strong { color: var(--clr-text-secondary); }
+
+    .table-wrap { overflow-x: auto; margin: 24px 0; border: 1px solid var(--clr-border); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead { background: var(--clr-surface); }
+    th { padding: 10px 12px; text-align: left; font-weight: 600; color: var(--clr-text); border-bottom: 2px solid var(--clr-border); white-space: nowrap; }
+    td { padding: 9px 12px; border-bottom: 1px solid var(--clr-border-light); color: var(--clr-text-secondary); white-space: nowrap; }
+    tbody tr:hover { background: #f9fafe; }
+    .row-best td { color: var(--clr-accent); font-weight: 600; }
+    .row-group-header td { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--clr-text-dim); background: var(--clr-surface); padding: 10px 12px 6px; font-weight: 600; border-bottom: 1px solid var(--clr-border); }
+    td.num { font-family: var(--font-mono); font-size: 0.82rem; text-align: right; }
+    th.num { text-align: right; }
+    .ops-table td:first-child { font-weight: 600; color: var(--clr-text); }
+
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 28px 0; }
+    .card { border: 1px solid var(--clr-border); border-radius: 8px; padding: 24px; background: #fff; transition: border-color 0.2s; }
+    .card:hover { border-color: var(--clr-accent); }
+    .card-icon { font-size: 1.3rem; margin-bottom: 10px; }
+    .card h3 { font-size: 1rem; margin-top: 0; margin-bottom: 6px; }
+    .card p { font-size: 0.88rem; color: var(--clr-text-dim); line-height: 1.6; margin-bottom: 14px; }
+    .card .btn { font-size: 0.82rem; padding: 7px 14px; }
+
+    .criteria-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+    .criteria-item { background: var(--clr-surface); border-radius: 8px; padding: 18px 20px; border-left: 3px solid var(--clr-accent); }
+    .criteria-item h4 { font-size: 0.92rem; font-weight: 600; color: var(--clr-text); margin-bottom: 4px; }
+    .criteria-item p { font-size: 0.84rem; color: var(--clr-text-dim); line-height: 1.6; }
+
+    .insight-box { background: var(--clr-surface); border-radius: 8px; padding: 20px 24px; margin: 20px 0; border-left: 3px solid var(--clr-orange); }
+    .insight-box.blue { border-left-color: var(--clr-accent); }
+    .insight-box.red { border-left-color: var(--clr-red); }
+    .insight-box.green { border-left-color: var(--clr-green); }
+    .insight-label { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .insight-box.blue .insight-label { color: var(--clr-accent); }
+    .insight-box.red .insight-label { color: var(--clr-red); }
+    .insight-box.green .insight-label { color: var(--clr-green); }
+    .insight-box .insight-label { color: var(--clr-orange); }
+    .insight-box p { font-size: 0.92rem; color: var(--clr-text-secondary); line-height: 1.7; }
+
+    .author-group { margin-bottom: 20px; }
+    .author-group-label { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--clr-text-dim); margin-bottom: 8px; font-weight: 600; }
+    .author-names { font-size: 0.95rem; color: var(--clr-text); line-height: 1.9; }
+    .author-names sup { color: var(--clr-accent); font-weight: 600; font-size: 0.7rem; }
+    .affil-list { font-size: 0.84rem; color: var(--clr-text-dim); line-height: 1.9; margin-top: 16px; }
+    .affil-list sup { color: var(--clr-accent); font-weight: 600; }
+
+    .cite-block { background: var(--clr-surface); border: 1px solid var(--clr-border); border-radius: 8px; padding: 20px; margin-top: 20px; position: relative; }
+    .cite-block pre { font-family: var(--font-mono); font-size: 0.75rem; color: var(--clr-text-secondary); white-space: pre-wrap; line-height: 1.65; }
+    .copy-btn { position: absolute; top: 12px; right: 12px; background: #fff; border: 1px solid var(--clr-border); color: var(--clr-text-dim); padding: 5px 12px; border-radius: 5px; font-size: 0.72rem; font-family: var(--font-mono); cursor: pointer; transition: all 0.2s; }
+    .copy-btn:hover { color: var(--clr-accent); border-color: var(--clr-accent); }
+
+    .error-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .error-item { display: flex; align-items: center; gap: 12px; background: var(--clr-surface); border-radius: 8px; padding: 14px 18px; }
+    .error-bar { width: 6px; border-radius: 3px; align-self: stretch; }
+    .error-num { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; color: var(--clr-text); line-height: 1; }
+    .error-label { font-size: 0.82rem; color: var(--clr-text-dim); margin-top: 2px; }
+
+    footer { border-top: 1px solid var(--clr-border-light); padding: 28px 24px; text-align: center; font-size: 0.82rem; color: var(--clr-text-dim); }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 2rem; }
+      .hero-subtitle { font-size: 1.1rem; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+      .card-grid, .criteria-grid, .error-grid { grid-template-columns: 1fr; }
+      .nav-links a { padding: 4px 6px; font-size: 0.72rem; }
+      section { padding: 36px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">DEEPSYNTH</a>
+    <div class="nav-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#benchmark">Benchmark</a>
+      <a href="#results">Results</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#data">Data&nbsp;&amp;&nbsp;Code</a>
+      <a href="#citation">Cite</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-venue"><i class="fas fa-award" style="margin-right:4px;"></i> Published at ICLR 2026 — Poster</div>
+  <h1>DEEPSYNTH</h1>
+  <div class="hero-subtitle">A Benchmark for Deep Information Synthesis</div>
+
+  <div class="hero-authors">
+    <strong>Debjit Paul</strong><sup>1</sup>,
+    <strong>Daniel Murphy</strong><sup>3</sup>,
+    <strong>Milan Gritta</strong><sup>1</sup>,
+    <strong>Ronald Cardenas</strong><sup>1</sup>,
+    <strong>Victor Prokhorov</strong><sup>1</sup>,
+    <strong>Jun Wang</strong><sup>2</sup>,
+    <strong>Gerasimos Lampouras</strong><sup>1</sup>,
+    <strong>Lena Sophia Bolliger</strong><sup>6</sup>,
+    <strong>Aysim Toker</strong><sup>1</sup>,
+    <strong>Roy Miles</strong><sup>1</sup>,
+    <strong>Andreea-Maria Oncescu</strong><sup>1</sup>,
+    <strong>Jasivan Alex Sivakumar</strong><sup>4</sup>,
+    <strong>Philipp Borchert</strong><sup>1</sup>,
+    <strong>Ismail Elezi</strong><sup>1</sup>,
+    <strong>Meiru Zhang</strong><sup>5</sup>,
+    <strong>Ka Yiu Lee</strong><sup>1</sup>,
+    <strong>Guchun Zhang</strong><sup>1</sup>
+  </div>
+  <div class="hero-affiliations">
+    <sup>1</sup>Huawei Noah's Ark Lab, UK &nbsp;
+    <sup>2</sup>UCL Centre for AI &nbsp;
+    <sup>3</sup>Imperial College London &nbsp;
+    <sup>4</sup>University of Sheffield &nbsp;
+    <sup>5</sup>University of Cambridge &nbsp;
+    <sup>6</sup>University of Zurich
+  </div>
+
+  <div class="hero-actions">
+    <a href="https://openreview.net/pdf?id=0Dhpt9aY3n" class="btn btn-primary" target="_blank"><i class="fas fa-file-pdf"></i> Paper</a>
+    <a href="#" class="btn btn-outline" target="_blank"><i class="fab fa-github"></i> Code</a>
+    <a href="#data" class="btn btn-outline"><i class="fas fa-database"></i> Dataset</a>
+    <a href="#citation" class="btn btn-outline"><i class="fas fa-quote-left"></i> Cite</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="stats-row">
+    <div class="stat-cell"><div class="stat-num">120</div><div class="stat-label">Tasks</div></div>
+    <div class="stat-cell"><div class="stat-num">67</div><div class="stat-label">Countries</div></div>
+    <div class="stat-cell"><div class="stat-num">7</div><div class="stat-label">Domains</div></div>
+    <div class="stat-cell"><div class="stat-num">5.5h</div><div class="stat-label">Avg. Annotation</div></div>
+    <div class="stat-cell"><div class="stat-num">8.97</div><div class="stat-label">Best F1</div></div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- ABSTRACT -->
+  <section id="abstract">
+    <h2>Abstract</h2>
+    <div class="prose">
+      <p>Large language model (LLM)-based agents are increasingly used to solve complex tasks involving tool use, such as web browsing, code execution, and data analysis. However, current evaluation benchmarks do not adequately assess their ability to solve real-world tasks that require synthesizing information from multiple sources and inferring insights beyond simple fact retrieval.</p>
+      <p>To address this, we introduce <strong>DEEPSYNTH</strong>, a novel benchmark designed to evaluate agents on realistic, time-consuming problems that combine information gathering, synthesis, and structured reasoning to produce insights. DEEPSYNTH contains 120 tasks collected across 7 domains and data sources covering <strong>67 countries</strong>. It is constructed using a multi-stage data collection pipeline that requires annotators to collect official data sources, create hypotheses, perform manual analysis, and design tasks with verifiable answers.</p>
+      <p>When evaluated on DEEPSYNTH, <strong>9 state-of-the-art LLMs and deep research agents achieve a maximum F1 score of only 8.97</strong>. Our analysis reveals that current agents struggle with hallucinations and reasoning over large information spaces, highlighting DEEPSYNTH as a crucial benchmark for guiding future research.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- BENCHMARK -->
+  <section id="benchmark">
+    <h2>The DEEPSYNTH Benchmark</h2>
+    <div class="prose">
+      <p>DEEPSYNTH evaluates agents on their ability to navigate multiple websites, extract information from both structured and unstructured sources, and reason effectively to produce correct solutions. Each task yields a concise JSON output enabling straightforward verification. Solving these tasks requires agents to formulate plans, decompose problems into sub-steps, select appropriate external tools, and integrate intermediate results.</p>
+    </div>
+
+    <div class="figure">
+      <div class="figure-body">
+        <img src="deepsynth_figure1.gif" alt="DEEPSYNTH Figure 1: Animated agent pipeline showing web search, document browsing, data extraction, reasoning, and answer generation" />
+      </div>
+      <div class="figure-caption">
+        <strong>Figure 1.</strong> A sample task from DEEPSYNTH, illustrating that synthesizing knowledge requires agents to perform multiple steps: web searching, browsing multiple data sources, extracting and filtering structured data, multi-step reasoning, and generating the final structured answer.
+      </div>
+    </div>
+
+    <h3>Design Criteria</h3>
+    <div class="criteria-grid">
+      <div class="criteria-item"><h4>Multi-source Synthesis</h4><p>Tasks require identifying connections across multiple data sources and combining information to produce a coherent solution.</p></div>
+      <div class="criteria-item"><h4>Real-World Inspired</h4><p>Tasks are designed so that insights would conceivably shape decisions of policy makers, travel agents, political scientists, etc.</p></div>
+      <div class="criteria-item"><h4>Verifiable Answers</h4><p>Each task has a closed-form JSON answer that can be automatically verified and is stable over time for reproducible evaluation.</p></div>
+      <div class="criteria-item"><h4>Diversity</h4><p>Tasks span 67 countries and 7 domains with temporal analyses, comparative evaluations, and relational reasoning.</p></div>
+      <div class="criteria-item" style="grid-column: 1 / -1;"><h4>Robust Against Memorisation</h4><p>Gold-standard answers are intentionally non-retrievable through verbatim lookup, compelling multi-step reasoning to derive the correct output.</p></div>
+    </div>
+
+    <h3>Data Collection Pipeline</h3>
+    <div class="prose">
+      <p>Building DEEPSYNTH involved four key stages. First, 16 human experts (81.25% PhD holders) proposed 223 diverse data sources across 7 domains. After filtering for trustworthiness and usefulness, experts formulated hypotheses and validated them through detailed analysis. Finally, they formulated task questions with intermediate steps, supporting evidence, and verifiable answers. All tasks underwent independent double-annotation; only tasks where both annotators agreed were retained, yielding the final 120 tasks.</p>
+    </div>
+
+    <h3>Synthesis Operations</h3>
+    <div class="table-wrap">
+      <table class="ops-table">
+        <thead><tr><th>Operation</th><th>Description</th><th class="num">%</th></tr></thead>
+        <tbody>
+          <tr><td>Counting &amp; Comparing</td><td>Quantifying occurrences and comparing values across sources</td><td class="num">33.7%</td></tr>
+          <tr><td>Trend Detection</td><td>Identifying patterns, directions, or changes in data over time</td><td class="num">20.9%</td></tr>
+          <tr><td>Ranking</td><td>Ordering items based on specific criteria or importance</td><td class="num">19.8%</td></tr>
+          <tr><td>Average</td><td>Summarising numerical data from multiple sources</td><td class="num">11.1%</td></tr>
+          <tr><td>Correlation</td><td>Measuring relationships between two or more variables</td><td class="num">7.0%</td></tr>
+          <tr><td>Anomaly Detection</td><td>Identifying data points that deviate from the norm</td><td class="num">7.0%</td></tr>
+          <tr><td>Filtering</td><td>Selecting relevant information based on criteria or thresholds</td><td class="num">0.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- RESULTS -->
+  <section id="results">
+    <h2>Main Results</h2>
+    <div class="prose">
+      <p>We evaluated state-of-the-art LLMs and specialized deep research agents on DEEPSYNTH. All models were prompted using the same instructions. The table reports Pass@1 performance on the full benchmark.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th class="num">F1</th><th class="num">Prec.</th><th class="num">Recall</th><th class="num">EM</th><th class="num">LLM Judge</th></tr></thead>
+        <tbody>
+          <tr class="row-group-header"><td colspan="6">LLM Baselines</td></tr>
+          <tr><td>o4-mini</td><td class="num">3.05</td><td class="num">2.33</td><td class="num">4.39</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>GPT-4.1</td><td class="num">3.46</td><td class="num">2.86</td><td class="num">4.39</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>o3</td><td class="num">3.29</td><td class="num">2.85</td><td class="num">3.90</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>GPT-5.1</td><td class="num">3.83</td><td class="num">2.98</td><td class="num">5.37</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>Gemini-Pro-2.5</td><td class="num">6.25</td><td class="num">4.71</td><td class="num">9.27</td><td class="num">0.0</td><td class="num">5.0</td></tr>
+          <tr><td>GPT-5.2-Pro</td><td class="num">8.70</td><td class="num">8.45</td><td class="num">8.96</td><td class="num">6.25</td><td class="num">3.3</td></tr>
+          <tr><td>DeepSeek-R1-Chat</td><td class="num">3.23</td><td class="num">2.75</td><td class="num">3.90</td><td class="num">1.67</td><td class="num">2.5</td></tr>
+          <tr><td>DeepSeek-R1-Reasoner</td><td class="num">2.80</td><td class="num">2.73</td><td class="num">2.87</td><td class="num">2.50</td><td class="num">6.67</td></tr>
+          <tr class="row-group-header"><td colspan="6">Framework-based Agents</td></tr>
+          <tr class="row-best"><td>o3-deep-research</td><td class="num">8.97</td><td class="num">7.73</td><td class="num">10.69</td><td class="num">2.50</td><td class="num">17.5</td></tr>
+          <tr><td>Smolagent (GPT-4.1)</td><td class="num">3.75</td><td class="num">3.27</td><td class="num">4.39</td><td class="num">2.50</td><td class="num">7.5</td></tr>
+          <tr><td>Smolagent (GPT-5)</td><td class="num">6.42</td><td class="num">6.34</td><td class="num">6.50</td><td class="num">1.67</td><td class="num">2.5</td></tr>
+          <tr><td>OWL (GPT-4.1)</td><td class="num">5.41</td><td class="num">4.62</td><td class="num">6.52</td><td class="num">1.67</td><td class="num">12.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box red">
+      <div class="insight-label">Key Finding</div>
+      <p>Under strict exact-match, almost all LLM baselines score <strong>zero</strong>. The best agent, o3-deep-research, solves only 3 out of 120 tasks exactly. GPT-5.2-Pro, a newer model, achieves the highest EM among LLMs at 6.25, but still leaves vast room for improvement.</p>
+    </div>
+
+    <!-- DEEPSYNTH-Dev -->
+    <h3>DEEPSYNTH-Dev Results</h3>
+    <div class="prose">
+      <p>We also evaluate on the <strong>DEEPSYNTH-Dev</strong> subset. Among standalone LLMs, GPT-5.2 achieves the highest F1 score (15.6), while Gemini-Pro-3 leads on the LLM-Judge metric (15.0), suggesting it produces semantically reasonable outputs that strict matching penalizes. Among agents, o3-deep-research attains the highest LLM-Judge score (20.0), reinforcing that tool augmentation benefits synthesis-heavy tasks. The persistent gap between LLM-Judge and F1 scores across all models indicates that while models often demonstrate partial understanding, they frequently fail to produce exact outputs.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th class="num">F1</th><th class="num">Prec.</th><th class="num">Recall</th><th class="num">EM</th><th class="num">LLM Judge</th></tr></thead>
+        <tbody>
+          <tr class="row-group-header"><td colspan="6">LLM Baselines (DEEPSYNTH-Dev)</td></tr>
+          <tr><td>o4-mini</td><td class="num">3.26</td><td class="num">2.63</td><td class="num">4.29</td><td class="num">0.0</td><td class="num">2.5</td></tr>
+          <tr><td>GPT-4.1</td><td class="num">1.81</td><td class="num">1.57</td><td class="num">2.14</td><td class="num">0.0</td><td class="num">7.5</td></tr>
+          <tr><td>o3</td><td class="num">6.33</td><td class="num">5.68</td><td class="num">7.14</td><td class="num">1.25</td><td class="num">10.0</td></tr>
+          <tr><td>GPT-5.1</td><td class="num">6.18</td><td class="num">6.72</td><td class="num">5.71</td><td class="num">1.25</td><td class="num">12.5</td></tr>
+          <tr><td>Gemini-Pro-2.5</td><td class="num">5.87</td><td class="num">4.98</td><td class="num">7.14</td><td class="num">0.0</td><td class="num">5.0</td></tr>
+          <tr><td>Gemini-Pro-3</td><td class="num">8.59</td><td class="num">7.53</td><td class="num">10.0</td><td class="num">2.5</td><td class="num">15.0</td></tr>
+          <tr class="row-best"><td>GPT-5.2</td><td class="num">15.64</td><td class="num">18.45</td><td class="num">13.57</td><td class="num">2.5</td><td class="num">5.0</td></tr>
+          <tr><td>DeepSeek-Chat</td><td class="num">2.11</td><td class="num">2.08</td><td class="num">2.14</td><td class="num">0.0</td><td class="num">5.0</td></tr>
+          <tr><td>DeepSeek-Reasoner</td><td class="num">5.03</td><td class="num">4.49</td><td class="num">5.71</td><td class="num">1.25</td><td class="num">7.5</td></tr>
+          <tr class="row-group-header"><td colspan="6">Framework-based Agents (DEEPSYNTH-Dev)</td></tr>
+          <tr><td>o3-deep-research</td><td class="num">9.88</td><td class="num">7.55</td><td class="num">14.29</td><td class="num">7.50</td><td class="num">20.0</td></tr>
+          <tr><td>Smolagent (GPT-4.1)</td><td class="num">6.33</td><td class="num">5.68</td><td class="num">7.14</td><td class="num">7.14</td><td class="num">7.5</td></tr>
+          <tr><td>OWL (GPT-4.1)</td><td class="num">4.11</td><td class="num">3.95</td><td class="num">4.29</td><td class="num">0.0</td><td class="num">12.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Best@N -->
+    <h3>Best@N and Self-Consistency</h3>
+    <div class="prose">
+      <p>We examine whether multiple attempts improve task completion on DEEPSYNTH-Dev. Under <strong>Best@5</strong>, Smolagents (GPT-4.1) reaches 25.0% LLM-Judge accuracy compared to 17.5% for GPT-4.1, suggesting that tool-use introduces beneficial variance across runs. However, <strong>self-consistency</strong> (majority voting at N=5) yields only 5% accuracy for both systems, with low average consistency scores (0.27), indicating that correct answers rarely emerge as the majority prediction.</p>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">Best@N vs Self-Consistency</div>
+      <p>The stark contrast between Best@5 and self-consistency (25.0% vs. 5.0% for Smolagents) demonstrates that current agents exhibit <strong>high output variance</strong> on DEEPSYNTH tasks — occasional runs succeed, but models lack the reliability needed for consistent correct answers.</p>
+    </div>
+
+    <!-- Ablation -->
+    <h3>Ablation Study</h3>
+    <div class="prose">
+      <p>Removing any tool capability from OWL leads to consistent performance declines. The largest drop (−1.81 F1) occurs when search is excluded. Providing ground-truth intermediate reasoning steps (without answers) substantially boosts performance — GPT-4.1 jumps from 3.46 to 9.36 F1, and Smolagent from 3.75 to 10.50 F1 — confirming that current agents lack effective planning capabilities.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ANALYSIS -->
+  <section id="analysis">
+    <h2>Analysis &amp; Key Insights</h2>
+
+    <h3>Performance vs. Task Complexity</h3>
+    <div class="prose">
+      <p>All models struggle as intermediate steps increase. Agentic frameworks show a relative advantage on tasks requiring 11–15 steps, but remain on par with base LLMs for simpler tasks. With an average of 7.54 intermediate steps, this scaling difficulty explains the benchmark's overall challenge.</p>
+    </div>
+
+    <!-- Process Evaluation -->
+    <h3>Process Evaluation: Error Propagation</h3>
+    <div class="prose">
+      <p>To understand how errors accumulate, we evaluate intermediate step accuracy on 40 tasks. All models exhibit steep accuracy decay: retrieval steps achieve 2–12% F1, while computation steps collapse to near zero. Error propagation is near-total — when a step fails, the subsequent step also fails 91–100% of the time.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Step</th><th class="num">DeepSeek-R1</th><th class="num">GPT-4.1</th><th class="num">GPT-5.2</th><th class="num">Avg. Prop. (%)</th></tr></thead>
+        <tbody>
+          <tr><td>Step 1 (retrieval)</td><td class="num">11.2</td><td class="num">10.0</td><td class="num">4.1</td><td class="num">—</td></tr>
+          <tr><td>Step 2 (retrieval)</td><td class="num">12.4</td><td class="num">9.8</td><td class="num">2.6</td><td class="num">97.0</td></tr>
+          <tr><td>Step 3 (computation)</td><td class="num">3.9</td><td class="num">3.3</td><td class="num">0.5</td><td class="num">100.0</td></tr>
+          <tr><td>Step 4 (filtering)</td><td class="num">1.4</td><td class="num">2.4</td><td class="num">0.0</td><td class="num">100.0</td></tr>
+          <tr><td>Step 5 (aggregation)</td><td class="num">0.2</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td></tr>
+          <tr><td>Step 6 (aggregation)</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">100.0</td></tr>
+          <tr style="border-top: 2px solid var(--clr-border);"><td><strong>Final Answer</strong></td><td class="num"><strong>20.1</strong></td><td class="num"><strong>18.5</strong></td><td class="num"><strong>16.7</strong></td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box red">
+      <div class="insight-label">Insight — Cascading Failures</div>
+      <p>Low end-to-end F1 scores are driven primarily by <strong>early retrieval failures that cascade irrecoverably</strong> through the reasoning chain. Despite GPT-5.2 having web search access, it achieves the lowest intermediate accuracy (4.1% at step 1) — correctly identifying target databases but failing when its execution environment cannot process JavaScript-rendered tables or bulk data downloads.</p>
+    </div>
+
+    <h3>Error Analysis</h3>
+    <div class="prose"><p>Manual analysis of 32 error instances from OWL (GPT-4.1) reveals navigation and synthesis errors as the dominant failure modes:</p></div>
+    <div class="error-grid">
+      <div class="error-item"><div class="error-bar" style="background:#c0392b;"></div><div><div class="error-num">16</div><div class="error-label">Synthesis Errors — incorrect conclusions despite correct data</div></div></div>
+      <div class="error-item"><div class="error-bar" style="background:#c27119;"></div><div><div class="error-num">15</div><div class="error-label">Navigation Errors — failure to locate or access the correct source</div></div></div>
+      <div class="error-item"><div class="error-bar" style="background:#6b7280;"></div><div><div class="error-num">4</div><div class="error-label">No Answer — agent fails to generate any output</div></div></div>
+      <div class="error-item"><div class="error-bar" style="background:#4a5068;"></div><div><div class="error-num">4</div><div class="error-label">Technical Issues — system limitations or tool malfunctions</div></div></div>
+    </div>
+
+    <h3>Geographic Bias</h3>
+    <div class="prose"><p>Performance varies sharply by region. All models achieve F1 of 0.0 on Africa-related tasks (8.3% of benchmark). o3-deep-research shows the most consistent cross-regional performance.</p></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Region</th><th class="num">% Tasks</th><th class="num">GPT-4.1</th><th class="num">o3-deep-res.</th><th class="num">Gemini-2.5</th><th class="num">Smolagents</th></tr></thead>
+        <tbody>
+          <tr><td>Africa</td><td class="num">8.3%</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>North America</td><td class="num">11.7%</td><td class="num">4.65</td><td class="num">8.00</td><td class="num">12.00</td><td class="num">8.33</td></tr>
+          <tr><td>South America</td><td class="num">5.0%</td><td class="num">0.0</td><td class="num">25.00</td><td class="num">0.0</td><td class="num">0.0</td></tr>
+          <tr><td>Asia</td><td class="num">29.2%</td><td class="num">3.36</td><td class="num">12.70</td><td class="num">6.50</td><td class="num">11.88</td></tr>
+          <tr><td>Europe</td><td class="num">38.3%</td><td class="num">3.45</td><td class="num">10.83</td><td class="num">4.91</td><td class="num">5.28</td></tr>
+          <tr><td>Oceania</td><td class="num">10.8%</td><td class="num">8.96</td><td class="num">14.43</td><td class="num">6.67</td><td class="num">24.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box blue">
+      <div class="insight-label">Insight — Geographic Bias</div>
+      <p>These findings highlight strong geographical biases in current models, likely reflecting imbalances in training data distribution. DEEPSYNTH's diverse regional coverage naturally surfaces these disparities.</p>
+    </div>
+
+    <h3>Comparison with Existing Benchmarks</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dataset</th><th style="text-align:center;">Real World</th><th style="text-align:center;">Multi-Regional</th><th style="text-align:center;">Info. Synthesis</th><th style="text-align:center;">Multi-Part Answers</th></tr></thead>
+        <tbody>
+          <tr><td>GAIA</td><td style="text-align:center;">Partial</td><td style="text-align:center;">✗</td><td style="text-align:center;">Partial</td><td style="text-align:center;">✗</td></tr>
+          <tr><td>AssistantBench</td><td style="text-align:center;">✓</td><td style="text-align:center;">✗</td><td style="text-align:center;">✗</td><td style="text-align:center;">Partial</td></tr>
+          <tr><td>BrowseComp</td><td style="text-align:center;">✗</td><td style="text-align:center;">✗</td><td style="text-align:center;">✗</td><td style="text-align:center;">✗</td></tr>
+          <tr><td>HLE</td><td style="text-align:center;">Partial</td><td style="text-align:center;">Partial</td><td style="text-align:center;">Partial</td><td style="text-align:center;">✗</td></tr>
+          <tr class="row-best"><td>DEEPSYNTH</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td><td style="text-align:center;">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight-box green">
+      <div class="insight-label">Insight — Planning is the Bottleneck</div>
+      <p>The performance gap between reasoning models and general-purpose LLMs is relatively small, suggesting the key bottleneck lies not in reasoning ability alone, but in the <strong>availability of necessary information</strong> and the <strong>ability to plan</strong> multi-step strategies to acquire it.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- DATA & CODE -->
+  <section id="data">
+    <h2>Data &amp; Code</h2>
+    <div class="prose"><p>DEEPSYNTH is released in two splits: a <strong>Dev (Lite)</strong> set for rapid prototyping and a full <strong>Test</strong> set for final evaluation.</p></div>
+    <div class="card-grid">
+      <div class="card"><div class="card-icon">📄</div><h3>Paper</h3><p>Full paper with experiments, analysis, and appendices.</p><a href="https://openreview.net/pdf?id=0Dhpt9aY3n" class="btn btn-outline" target="_blank"><i class="fas fa-external-link-alt"></i> OpenReview</a></div>
+      <div class="card"><div class="card-icon">💻</div><h3>Code</h3><p>Evaluation scripts, agent baselines, and reproduction code.</p><a href="#" class="btn btn-outline" target="_blank"><i class="fab fa-github"></i> GitHub</a></div>
+      <div class="card"><div class="card-icon">🧪</div><h3>Dev Set (Lite)</h3><p>Lightweight split for rapid iteration and pipeline debugging.</p><a href="#" class="btn btn-outline"><i class="fas fa-download"></i> Coming Soon</a></div>
+      <div class="card"><div class="card-icon">📊</div><h3>Test Set</h3><p>Full 120-task benchmark for final scoring and leaderboard.</p><a href="#" class="btn btn-outline"><i class="fas fa-download"></i> Coming Soon</a></div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- AUTHORS -->
+  <section id="authors">
+    <h2>Authors</h2>
+    <div class="author-group">
+      <div class="author-group-label">Core Authors</div>
+      <div class="author-names">Debjit Paul<sup>1</sup>, Daniel Murphy<sup>3</sup>, Milan Gritta<sup>1</sup>, Ronald Cardenas<sup>1</sup>, Victor Prokhorov<sup>1</sup>, Jun Wang<sup>2</sup>, Gerasimos Lampouras<sup>1</sup></div>
+    </div>
+    <div class="author-group">
+      <div class="author-group-label">Dataset Contributors</div>
+      <div class="author-names">Lena Sophia Bolliger<sup>6</sup>, Aysim Toker<sup>1</sup>, Roy Miles<sup>1</sup>, Andreea-Maria Oncescu<sup>1</sup>, Jasivan Alex Sivakumar<sup>4</sup>, Philipp Borchert<sup>1</sup>, Ismail Elezi<sup>1</sup>, Meiru Zhang<sup>5</sup>, Ka Yiu Lee<sup>1</sup>, Guchun Zhang<sup>1</sup></div>
+    </div>
+    <div class="affil-list">
+      <sup>1</sup> Huawei Noah's Ark Lab, UK &nbsp;&nbsp;
+      <sup>2</sup> UCL Centre for Artificial Intelligence &nbsp;&nbsp;
+      <sup>3</sup> Imperial College London<br/>
+      <sup>4</sup> University of Sheffield &nbsp;&nbsp;
+      <sup>5</sup> University of Cambridge &nbsp;&nbsp;
+      <sup>6</sup> University of Zurich
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- CITATION -->
+  <section id="citation">
+    <h2>Citation</h2>
+    <div class="prose"><p>If you use DEEPSYNTH in your research, please cite our paper:</p></div>
+    <div class="cite-block">
+      <button class="copy-btn" onclick="copyBib()" id="copyBtn"><i class="far fa-copy"></i> Copy</button>
+      <pre id="bibTex">@inproceedings{paul2026deepsynth,
+  title     = {{DEEPSYNTH}: A Benchmark for Deep Information Synthesis},
+  author    = {Debjit Paul and Daniel Murphy and Milan Gritta and
+               Ronald Cardenas and Victor Prokhorov and Jun Wang and
+               Gerasimos Lampouras and Lena Sophia Bolliger and
+               Aysim Toker and Roy Miles and Andreea-Maria Oncescu and
+               Jasivan Alex Sivakumar and Philipp Borchert and
+               Ismail Elezi and Meiru Zhang and Ka Yiu Lee and
+               Guchun Zhang},
+  booktitle = {The Fourteenth International Conference on
+               Learning Representations (ICLR)},
+  year      = {2026},
+  url       = {https://openreview.net/forum?id=0Dhpt9aY3n}
+}</pre>
+    </div>
+  </section>
+
+</div>
+
+<footer>DEEPSYNTH &copy; 2026 &middot; A benchmark for the research community</footer>
+
+<script>
+function copyBib() {
+  const text = document.getElementById('bibTex').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
